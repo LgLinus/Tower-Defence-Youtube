@@ -6,6 +6,7 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
@@ -19,9 +20,9 @@ import android.util.Log;
 public class Main extends SimpleBaseGameActivity {
 	 
 	// Defines the width of the screen
-	public static final int CAMERA_WIDTH = 1280;
+	public static final int CAMERA_WIDTH = 1920;
 	// Defines the height of the screen
-	public static final int CAMERA_HEIGHT = 720; 
+	public static final int CAMERA_HEIGHT = 1080; 
 	// Set the FPS to 60
 	public static final int FPS_LIMIT = 60;
 	// The camera 
@@ -30,6 +31,8 @@ public class Main extends SimpleBaseGameActivity {
 	private BuildableBitmapTextureAtlas gameAtlas;
 	
 	private Scene mScene;;
+	
+	private Images images;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -47,12 +50,14 @@ public class Main extends SimpleBaseGameActivity {
 
 	@Override
 	protected void onCreateResources() {
-		// TODO Auto-generated method stub
-
+		
 		gameAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(),
-				4096, 4096);
-
-		// mEngine.getTextureManager().loadTexture(GameAtlas);
+				1024, 1024);
+		
+		images = new Images();
+		
+		images.loadImages(gameAtlas,this);
+		
 		try {
 			gameAtlas
 					.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(
@@ -61,14 +66,35 @@ public class Main extends SimpleBaseGameActivity {
 		} catch (TextureAtlasBuilderException e) {
 			Log.e("", "" + e);
 		}
-		//this.mEngine.getTextureManager().loadTexture(gameAtlas);
 	}
+
+	
 
 	@Override
 	protected Scene onCreateScene() {
 		mScene = new Scene();
 		mScene.setBackground(new Background(Color.WHITE));
+		
+		readMap(Maps.MAP2);
 		return mScene;
 	}
 
+	private void readMap(int[][] map){
+		
+		for(int i = 0; i < map.length; i++){
+			for(int j = 0; j < map[i].length;j++){
+				
+				if(map[i][j] == Maps.GRASS){
+					Sprite sprite = new Sprite(Maps.GRID_WIDTH*j, Maps.GRID_HEIGHT*i, images.getGrassTile(), this.getVertexBufferObjectManager());
+					mScene.attachChild(sprite);
+				}
+				else if(map[i][j] == Maps.ROAD){
+					Sprite sprite = new Sprite(Maps.GRID_WIDTH*j, Maps.GRID_HEIGHT*i, images.getRoadImage(), this.getVertexBufferObjectManager());
+					mScene.attachChild(sprite);
+				}
+			}
+		}
+		
+	}
+	
 }
